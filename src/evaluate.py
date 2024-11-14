@@ -3,24 +3,25 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def evaluate_model(model, dev, device='cpu'):
-    model.eval() 
+def evaluate_model(model, dev, device=None):
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    model.eval()
 
 
     dev_features, dev_targets = dev.dataset[dev.indices]
     dev_features, dev_targets = dev_features.to(device), dev_targets.to(device)
 
-
     with torch.no_grad():
         outputs = model(dev_features)
-        predicted = (outputs > 0.5).float()  
-
+        predicted = (outputs > 0.5).float()
 
     accuracy = accuracy_score(dev_targets.cpu(), predicted.cpu())
     f1 = f1_score(dev_targets.cpu(), predicted.cpu())
 
     cm = confusion_matrix(dev_targets.cpu(), predicted.cpu())
-    
+
     print(f'Accuracy: {accuracy:.4f}')
     print(f'F1 Score: {f1:.4f}')
 
