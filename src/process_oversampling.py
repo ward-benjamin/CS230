@@ -8,7 +8,7 @@ def process_NaNs(df):
     threshold_nans_cols = 0.2
     df.replace(-1,np.nan,inplace=True)
     nan_percentage = df.isna().mean()
-    df = df.loc[:, nan_percentage <= threshold]
+    df = df.loc[:, nan_percentage <= threshold_nans_cols]
     #Drop NaNs or unknowns
     df.dropna (inplace=True)
     return df
