@@ -46,7 +46,7 @@ def process_dataset(df):
         df_selected["Diabetes_status"]=df_selected["Diabetes_status"].replace(diabetes_map)
     
     if "Blood_pressure" in selected_cols:
-        df_selected["Blood_pressure"]=df_selected["Blood_pressure"].replace(diabetes_map)
+        df_selected["Blood_pressure"]=df_selected["Blood_pressure"].replace(blood_pressure_map)
 
     if "High_chol" in selected_cols:
         df_selected["High_chol"]=df_selected["High_chol"].replace(high_chol_map)
