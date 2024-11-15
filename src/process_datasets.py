@@ -37,7 +37,7 @@ def fruit_juice_function(x):
         return 0
 fruit_juice_days_features = ["Juice_consumption","Fruit_consumption","Beans_consumption","Leafy_greens"]
 
-diabetes_map = {3.0: 0, 1.0:1, 4.0: -1, 2.0: 2, 7.0: -1, 9.0: -1}
+diabetes_map = {3.0: 0, 1.0:1, 4.0: 0, 2.0: 2, 7.0: -1, 9.0: -1}
 
 general_map = {7: -1, 9:-1}
 general_features = ["GENHLTH","Eucation_level","Smoker_category"]
