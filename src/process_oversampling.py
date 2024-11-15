@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np
 import torch
+from torch.utils.data import TensorDataset
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import NearMiss
 from sklearn.model_selection import train_test_split
