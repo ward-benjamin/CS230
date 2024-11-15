@@ -62,6 +62,8 @@ checkup_map = {8:7, 7:-1, 9:-1}
 checkup_features = ["Time_since_last_checkup"]
 
 def process_dataset(df):
+    df = get_relevant_features(df)
+    df = df.rename(columns=cols_new_name)
     list_cols = list(df.columns)
     #Diabetes map
     df["Diabetes_status"]=df["Diabetes_status"].replace(diabetes_map)
