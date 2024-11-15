@@ -16,14 +16,14 @@ diabetes_map = {2: 0, 3:0, 4: 1, 1:2, 7.0: -1, 9.0: -1}
 blood_pressure_map = {1:0,2:1,9:-1}
 high_chol_map = {2:0, 7:-1, 9:-1}
 cholchk_map = {3:0, 2:0, 9:-1}
-smoked_100_cigs_map = {2:0 7:-1, 9:-1}
+smoked_100_cigs_map = {2:0, 7:-1, 9:-1}
 had_stroke_map = {2:0, 7:-1, 9:-1}
 michd_map = {2:0, 7:-1, 9:-1}
 exercise_last_mo_map = {2:0, 9:-1}
 fruit_map = {2:0, 9:-1}
 veg_map = {2:0, 9:-1}
 heavy_drinker_map = {1:0, 2:1}
-health_care_map = {2:0 7:-1, 9:-1}
+health_care_map = {2:0, 7:-1, 9:-1}
 medcost_map = {2:0, 7:-1, 9:-1}
 genhlth_map = {7:-1, 9:-1}
 menthlth_map = {88:0, 77:-1, 99:-1}
@@ -48,7 +48,7 @@ def process_dataset(df):
     if "Blood_pressure" in selected_cols:
         df_selected["Blood_pressure"]=df_selected["Blood_pressure"].replace(diabetes_map)
 
-    if "High_chol" in selected_cols::
+    if "High_chol" in selected_cols:
         df_selected["High_chol"]=df_selected["High_chol"].replace(high_chol_map)
 
     if "CHOLCHK" in selected_cols:
