@@ -28,7 +28,7 @@ medcost_map = {2:0, 7:-1, 9:-1}
 genhlth_map = {7:-1, 9:-1}
 menthlth_map = {88:0, 77:-1, 99:-1}
 physhlth_map = {88:0, 77:-1, 99:-1}
-diffwalk_map = {2:0, 7:-1, 9:-1}
+difficulty_walking_map = {2:0, 7:-1, 9:-1}
 sex_map = {2:0}
 age_bracket_map = {14:-1}
 education_level_map = {9:-1}
@@ -40,6 +40,7 @@ def process_dataset(df):
     selected_cols = list(set(selected_features)&set(df.columns))
     df_selected = df[selected_cols]
     df_selected = df_selected.rename(columns=cols_new_name)
+    selected_cols = list(df_selected.columns)
 
 
     if "Diabetes_status" in selected_cols:
@@ -93,8 +94,8 @@ def process_dataset(df):
     if "PHYSHLTH" in selected_cols:
         df_selected["PHYSHLTH"]=df_selected["PHYSHLTH"].replace(physhlth_map)
 
-    if "DIFFWALK" in selected_cols:
-        df_selected["DIFFWALK"]=df_selected["DIFFWALK"].replace(diffwalk_map)
+    if "Difficulty_walking" in selected_cols:
+        df_selected["Difficulty_walking"]=df_selected["Difficulty_walking"].replace(difficulty_walking_map)
 
     if "Sex" in selected_cols:
         df_selected["Sex"]=df_selected["Sex"].replace(sex_map)
@@ -111,8 +112,8 @@ def process_dataset(df):
     if "Diabetes_status" in selected_cols:
         df_selected["Diabetes_status"]=df_selected["Diabetes_status"].replace(diabetes_binary_map)
 
-    for feature in list(df_selected_columns):
-        df_selected = df_selected[df_selected.feature != -1]
+    for feature_name in selected_cols:
+        df_selected = df_selected[df_selected[feature_name] != -1]
 
     df_selected = df_selected.dropna()
 
