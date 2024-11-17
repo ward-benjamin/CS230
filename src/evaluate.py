@@ -6,6 +6,10 @@ import numpy as np
 
 def evaluate_model(model, X_train,y_train,X_test,y_test):
 
+    """
+    In this function, we analyze the results of training a model on its training set and test set.
+    """
+
     # Make predictions on train and test sets
     y_train_pred = model.predict(X_train).round()
     y_test_pred = model.predict(X_test).round()
@@ -24,6 +28,7 @@ def evaluate_model(model, X_train,y_train,X_test,y_test):
     print(f'F1 Score train: {F1_score_train:.4f}')
     print(f'F1 Score test: {F1_score_test:.4f}')   
 
+    #print the heatmap of the confusion matrix
     fig, axes = plt.subplots(1, 2, figsize=(12, 5)) 
     sns.heatmap(conf_matrix_train, annot=True, fmt='.2f', cmap='Blues', cbar=False, ax=axes[0], 
                 xticklabels=['0', '1'], yticklabels=['0', '1'])

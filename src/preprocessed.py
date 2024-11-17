@@ -7,6 +7,11 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import NearMiss
 from sklearn.model_selection import train_test_split
 
+"""
+
+In this file, we gather the functions to preprocess the data and save it as a CSV file in a folder that contains all the preprocessed datasets.
+"""
+
 selected_features = ['DIABETE3','_RFHYPE5','TOLDHI2','_CHOLCHK','_BMI5','SMOKE100','CVDSTRK3','_MICHD','_TOTINDA','_FRTLT1','_VEGLT1','_RFDRHV5','HLTHPLN1', 'MEDCOST','GENHLTH', 'MENTHLTH', 'PHYSHLTH', 'DIFFWALK','SEX','_AGEG5YR','EDUCA','INCOME2']
 cols_new_name = {"DIABETE3":"Diabetes_status","_BMI5":"BMI","SMOKE100":"Has_smoked_100_cigs","CVDSTRK3":"Had_stroke","_RFHYPE5":"Blood_pressure",
 "_CHOLCHK":"CHOLCHK","TOLDHI2":"High_chol","_MICHD":"Had_heart_att","_TOTINDA":"Exercise_last_mo","_FRTLT1":"Fruit_daily",
@@ -41,7 +46,7 @@ healthcare_map = {} #ToDo
 
 diabetes_binary_map = {1:0, 2:1}
 
-def process_dataset(df):
+def process_dataset(df): #This function can select the interesting features 
     selected_cols = list(set(selected_features)&set(df.columns))
     df_selected = df[selected_cols]
     df_selected = df_selected.rename(columns=cols_new_name)
@@ -143,7 +148,7 @@ def process_part_2(df):
     df = convert_diabetes_to_binary(df)
     return df
 
-def oversample_train_test_SMOTE(df):
+def oversample_train_test_SMOTE(df): #This function process the imbalanced data in adding new examples with smote method
 
     X = df.drop(columns=["Diabetes_status"])
     y = df["Diabetes_status"]
@@ -155,7 +160,7 @@ def oversample_train_test_SMOTE(df):
 
     return X_train_resampled,y_train_resampled,X_test,y_test,X_dev,y_dev
 
-def undersample_train_test_NM(df):
+def undersample_train_test_NM(df): #This function process the imbalanced data in removing examples with NearMiss method
 
     X = df.drop(columns=["Diabetes_status"])
     y = df["Diabetes_status"]
@@ -166,7 +171,7 @@ def undersample_train_test_NM(df):
 
     return X_train_resampled,y_train_resampled,X_test,y_test,X_dev,y_dev
 
-def process_raw_data(year,sampling_method = 'NearMiss'):
+def process_raw_data(year,sampling_method = 'NearMiss'): #This function save the processed dataset in a new csv
     df = pd.read_csv("local/data/raw/df_"+year+".csv")
     df = process_dataset(df)
     if sampling_method == 'NearMiss' :
