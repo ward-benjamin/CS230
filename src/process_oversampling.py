@@ -24,51 +24,13 @@ def process_part_2(df):
     return df
 
 def oversample_train_test_SMOTE(df):
+
     X = df.drop(columns=["Diabetes_status"])
     y = df["Diabetes_status"]
-    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.05,random_state=42)
+    X_train, X_val, y_train, y_val = train_test_split(X,y,test_size=0.1,random_state=42)
+    X_test,X_dev,y_test,y_dev = train_test_split(X_val,y_val,test_size=0.5,random_state=42)
     smote = SMOTE(random_state=42)
     X_train_resampled, y_train_resampled = smote.fit_resample(X_train,y_train)
-
-    """
-    X_train_tensor = torch.tensor(X_train_resampled.values,dtype=torch.float32)
-    y_train_tensor = torch.tensor(y_train_resampled.values,dtype=torch.long)
-    train_dataset = TensorDataset(X_train_tensor,y_train_tensor)
-
-    X_test_tensor = torch.tensor(X_test.values,dtype=torch.float32)
-    y_test_tensor = torch.tensor(y_test.values,dtype=torch.long)
-    test_dataset = TensorDataset(X_test_tensor,y_test_tensor)
-    """
-
-
-    X_train_tensor = tf.convert_to_tensor(X_train_resampled.values, dtype=tf.float32)
-    y_train_tensor = tf.convert_to_tensor(y_train_resampled.values, dtype=tf.int64)  # Use int64 for classification labels
-    train_dataset = tf.data.Dataset.from_tensor_slices((X_train_tensor, y_train_tensor))
-    
-    X_test_tensor = tf.convert_to_tensor(X_test.values, dtype=tf.float32)
-    y_test_tensor = tf.convert_to_tensor(y_test.values, dtype=tf.int64)
-    test_dataset = tf.data.Dataset.from_tensor_slices((X_test_tensor, y_test_tensor))
-
-    return train_dataset, test_dataset
-
-def undersample_train_test_NM(df):
-    X = df[["Diabetes_status","Blood_pressure"]]
-    #X = df.drop(columns=["Diabetes_status"])
-    y = df["Diabetes_status"]
-    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.05,random_state=42)
-    nearmiss = NearMiss(version=1)
-    X_train_resampled, y_train_resampled = nearmiss.fit_resample(X_train,y_train)
-    
-    """
-    X_train_tensor = torch.tensor(X_train_resampled.values,dtype=torch.float32)
-    y_train_tensor = torch.tensor(y_train_resampled.values,dtype=torch.long)
-    train_dataset = TensorDataset(X_train_tensor,y_train_tensor)
-
-    X_test_tensor = torch.tensor(X_test.values,dtype=torch.float32)
-    y_test_tensor = torch.tensor(y_test.values,dtype=torch.long)
-    test_dataset = TensorDataset(X_test_tensor,y_test_tensor)
-    """
-
 
     X_train_tensor = tf.convert_to_tensor(X_train_resampled.values, dtype=tf.float32)
     y_train_tensor = tf.convert_to_tensor(y_train_resampled.values, dtype=tf.int64) 
@@ -78,4 +40,34 @@ def undersample_train_test_NM(df):
     y_test_tensor = tf.convert_to_tensor(y_test.values, dtype=tf.int64)
     test_dataset = tf.data.Dataset.from_tensor_slices((X_test_tensor, y_test_tensor))
 
+    X_dev_tensor = tf.convert_to_tensor(X_dev.values, dtype=tf.float32)
+    y_dev_tensor = tf.convert_to_tensor(y_dev.values, dtype=tf.int64)
+    dev_dataset = tf.data.Dataset.from_tensor_slices((X_dev_tensor, y_dev_tensor))
+
     return train_dataset, test_dataset
+
+def undersample_train_test_NM(df):
+
+    X = df.drop(columns=["Diabetes_status"])
+    y = df["Diabetes_status"]
+    X_train, X_val, y_train, y_val = train_test_split(X,y,test_size=0.1,random_state=42)
+    X_test,X_dev,y_test,y_dev = train_test_split(X_val,y_val,test_size=0.5,random_state=42)
+    nearmiss = NearMiss(version=1)
+    X_train_resampled, y_train_resampled = nearmiss.fit_resample(X_train,y_train)
+
+    X_train_tensor = tf.convert_to_tensor(X_train_resampled.values, dtype=tf.float32)
+    y_train_tensor = tf.convert_to_tensor(y_train_resampled.values, dtype=tf.int64) 
+    train_dataset = tf.data.Dataset.from_tensor_slices((X_train_tensor, y_train_tensor))
+    
+    X_test_tensor = tf.convert_to_tensor(X_test.values, dtype=tf.float32)
+    y_test_tensor = tf.convert_to_tensor(y_test.values, dtype=tf.int64)
+    test_dataset = tf.data.Dataset.from_tensor_slices((X_test_tensor, y_test_tensor))
+
+    X_dev_tensor = tf.convert_to_tensor(X_dev.values, dtype=tf.float32)
+    y_dev_tensor = tf.convert_to_tensor(y_dev.values, dtype=tf.int64)
+    dev_dataset = tf.data.Dataset.from_tensor_slices((X_dev_tensor, y_dev_tensor))
+
+
+
+
+    return train_dataset, test_dataset, dev_dataset

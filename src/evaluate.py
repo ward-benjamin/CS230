@@ -4,45 +4,46 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-def evaluate_model(model, dev):
-    # Extraire toutes les features et cibles d'un coup
-    print(dev)
-    dev_features, dev_targets = zip(*list(dev)) 
-    print(sum(1 for _ in dev)) # Crée une liste de tuples et sépare les features et targets
-    dev_features = np.array(dev_features)  # Convertir en numpy array
-    dev_targets = np.array(dev_targets)  # Convertir en numpy array
+def evaluate_model(model, X_train,y_train,X_test,y_test):
 
-    print(np.all(dev_targets == 1))
+    # Make predictions on train and test sets
+    y_train_pred = model.predict(X_train).round()
+    y_test_pred = model.predict(X_test).round()
+    
+    # Calculate metrics
+    Accuracy_train = accuracy_score(y_train, y_train_pred)
+    F1_score_train = f1_score(y_train, y_train_pred)
+    Accuracy_test = accuracy_score(y_test, y_test_pred)
+    F1_score_test = f1_score(y_test, y_test_pred)
 
-    # Générer les prédictions
-    outputs = model(dev_features, training=False)
-    predicted = tf.cast(outputs > 0.5, dtype=tf.float32)
+    conf_matrix_train = confusion_matrix(y_train, y_train_pred)
+    conf_matrix_test = confusion_matrix(y_test, y_test_pred)
 
-    accuracy = accuracy_score(dev_targets, predicted.numpy())
-    f1 = f1_score(dev_targets, predicted.numpy())
-    cm = confusion_matrix(dev_targets, predicted.numpy())
+    print(f'Accuracy train: {Accuracy_train:.4f}')
+    print(f'Accuracy test: {Accuracy_test:.4f}')
+    print(f'F1 Score train: {F1_score_train:.4f}')
+    print(f'F1 Score test: {F1_score_test:.4f}')   
 
-    # Vérifier que la matrice de confusion a bien deux classes
-    if cm.shape != (2, 2):
-        # Si la matrice de confusion n'a pas deux classes, ajuster
-        cm = np.array([[cm[0, 0], cm[0, 1]], [cm[1, 0], cm[1, 1]]])
-        print("Ajustement de la matrice de confusion, car une seule classe a été prédite.")
-
-    # Afficher les résultats
-    print(f'Accuracy: {accuracy:.4f}')
-    print(f'F1 Score: {f1:.4f}')
-
-    # Afficher la matrice de confusion
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm, annot=True, fmt='.2f', cmap='Blues', cbar=False, xticklabels=['0', '1'], yticklabels=['0', '1'])
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    plt.title('Confusion Matrix')
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5)) 
+    sns.heatmap(conf_matrix_train, annot=True, fmt='.2f', cmap='Blues', cbar=False, ax=axes[0], 
+                xticklabels=['0', '1'], yticklabels=['0', '1'])
+    axes[0].set_xlabel('Predicted')
+    axes[0].set_ylabel('True')
+    axes[0].set_title('Train Confusion Matrix')
+    sns.heatmap(conf_matrix_test, annot=True, fmt='.2f', cmap='Blues', cbar=False, ax=axes[1], 
+                xticklabels=['0', '1'], yticklabels=['0', '1'])
+    axes[1].set_xlabel('Predicted')
+    axes[1].set_ylabel('True')
+    axes[1].set_title('Test Confusion Matrix')
+    plt.tight_layout()
     plt.show()
 
+
     return {
-        'accuracy': accuracy,
-        'f1_score': f1,
-        'false_positive': cm[0, 1] if cm.shape == (2, 2) else 0,
-        'false_negative': cm[1, 0] if cm.shape == (2, 2) else 0
+        'accuracy_train': Accuracy_train,
+        'accuracy_test': Accuracy_test,
+        'f1_score_train': F1_score_train,
+        'f1_score_test': F1_score_test,
+        'confusion_matrix_train': conf_matrix_train,
+        'confusion_matrix_test': conf_matrix_test
     }
