@@ -6,13 +6,6 @@ def train_model(dataset, model, loss_fn, optimizer, num_epochs, batch_size=64, t
     dataset_size = len(dataset)
     train_size = int(dataset_size * (1 - test_ratio))
     test_size = dataset_size - train_size
-    dataset = dataset.shuffle(buffer_size=1000, reshuffle_each_iteration=True)
-    
-    #start
-    dev_features,dev_target = dataset
-    dev_features = np.array(dev_features)
-    print(np.all(dev_features[:, 0] == 1))
-    #end
 
     train_dataset = dataset.take(train_size)
     test_dataset = dataset.skip(train_size)

@@ -6,11 +6,13 @@ import numpy as np
 
 def evaluate_model(model, dev):
     # Extraire toutes les features et cibles d'un coup
-    dev_features, dev_targets = zip(*list(dev))  # Crée une liste de tuples et sépare les features et targets
+    print(dev)
+    dev_features, dev_targets = zip(*list(dev)) 
+    print(sum(1 for _ in dev)) # Crée une liste de tuples et sépare les features et targets
     dev_features = np.array(dev_features)  # Convertir en numpy array
     dev_targets = np.array(dev_targets)  # Convertir en numpy array
 
-    print(np.all(dev_features[:, 0] == 1))
+    print(np.all(dev_targets == 1))
 
     # Générer les prédictions
     outputs = model(dev_features, training=False)
