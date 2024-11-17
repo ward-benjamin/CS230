@@ -1,39 +1,36 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import TensorDataset, DataLoader, random_split
-import torch.optim as optim
+import tensorflow as tf
+import numpy as np
 
-def train_model(dataset, model, criterion, optimizer, num_epochs, batch_size=64, test_ratio=0.05):
+def train_model(dataset, model, loss_fn, optimizer, num_epochs, batch_size=64, test_ratio=0.05):
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)
+    dataset_size = len(dataset)
+    train_size = int(dataset_size * (1 - test_ratio))
+    test_size = dataset_size - train_size
+    dataset = dataset.shuffle(buffer_size=1000, reshuffle_each_iteration=True)
+    
+    #start
+    dev_features,dev_target = dataset
+    dev_features = np.array(dev_features)
+    print(np.all(dev_features[:, 0] == 1))
+    #end
 
-    train_size = int(len(dataset) * (1 - test_ratio))
-    test_size = len(dataset) - train_size
-    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    train_dataset = dataset.take(train_size)
+    test_dataset = dataset.skip(train_size)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    train_losses = []
-    model.train()
-    # Training loop
-    for epoch in range(num_epochs):
+    train_dataset_batch = train_dataset.shuffle(buffer_size=1000).batch(batch_size)
+    test_dataset_batch = test_dataset.batch(test_size)
 
-        running_loss = 0.0
+    model.compile(
+        optimizer=optimizer,
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
 
-        for batch_features, batch_targets in train_loader:
-            batch_features, batch_targets = batch_features.to(device), batch_targets.to(device)
-            optimizer.zero_grad()
-            outputs = model(batch_features)
-            loss = criterion(outputs, batch_targets)
-            loss.backward()
-            optimizer.step()
+    history = model.fit(
+        train_dataset_batch,
+        validation_data=test_dataset_batch,
+        epochs=num_epochs
+    )
 
-            running_loss += loss.item()
-            train_losses.append(loss.item())
-
-        avg_loss = running_loss / len(train_loader)
-        print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_loss:.4f}')
-
-    return train_losses, test_dataset
+    return history,test_dataset

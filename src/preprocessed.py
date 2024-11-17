@@ -1,6 +1,6 @@
 import pandas as pd
-import torch
-from torch.utils.data import TensorDataset, random_split
+import tensorflow as tf
+import numpy as np
 import os
 
 def preprocess_data_features(source='ucimlrepo', features_list=None):
@@ -26,25 +26,33 @@ def preprocess_data_features(source='ucimlrepo', features_list=None):
 
 
 
-def split_dataset_dev(source = 'ucimlrepo', dev_ratio=0.05, seed=42):
-
-    url_features = 'local/data/processed/processed_features_'+source+'.csv'
-    url_targets = 'local/data/processed/processed_target_'+source+'.csv'
+def split_dataset_dev(source='ucimlrepo', dev_ratio=0.05, seed=42):
+    url_features = 'local/data/processed/processed_features_' + source + '.csv'
+    url_targets = 'local/data/processed/processed_target_' + source + '.csv'
     features = pd.read_csv(url_features)
     targets = pd.read_csv(url_targets)
 
-    torch.manual_seed(seed)
+    np.random.seed(seed)
+    
+    features_tensor = tf.convert_to_tensor(features.values, dtype=tf.float32)
+    targets_tensor = tf.convert_to_tensor(targets.values, dtype=tf.float32)
 
-    features_tensor = torch.tensor(features.values, dtype=torch.float32)
-    targets_tensor = torch.tensor(targets.values, dtype=torch.float32)
+    indices = np.arange(len(features_tensor))
+    np.random.shuffle(indices)
+    
 
-    full_dataset = TensorDataset(features_tensor, targets_tensor)
+    val_size = int(len(features_tensor) * dev_ratio)
 
-    temp_size = int(len(full_dataset) * (1-dev_ratio))
-    val_size = len(full_dataset) - temp_size
+    val_indices = indices[:val_size]
+    temp_indices = indices[val_size:]
 
-    # Split the dataset
-    temp_dataset, val_dataset = random_split(full_dataset, [temp_size, val_size])
+
+    temp_dataset = tf.data.Dataset.from_tensor_slices(
+        (tf.gather(features_tensor, temp_indices), tf.gather(targets_tensor, temp_indices))
+    )
+    val_dataset = tf.data.Dataset.from_tensor_slices(
+        (tf.gather(features_tensor, val_indices), tf.gather(targets_tensor, val_indices))
+    )
 
     return temp_dataset, val_dataset
 

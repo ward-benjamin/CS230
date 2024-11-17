@@ -1,24 +1,34 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+from tensorflow.keras.initializers import HeNormal, Zeros, GlorotUniform
 
+def create_sequential_model(input_dim, hidden_layers=[], dropout_rates=0.3):  
 
-def create_sequential_model(input_dim, hidden_layers=[], dropout_rates=0.3): #Construct a classic model
-    layers = []
+    model_layers = []
     last_dim = input_dim
     
-    if type(dropout_rates) != list :
-        dropout_rates = [dropout_rates]*len(hidden_layers)
+    if type(dropout_rates) != list:
+        dropout_rates = [dropout_rates] * len(hidden_layers)
 
-    for hidden_dim,dropout_rate in zip(hidden_layers,dropout_rates):
-        layers.append(nn.Linear(last_dim, hidden_dim))
-        layers.append(nn.ReLU())
-        layers.append(nn.Dropout(dropout_rate))
+    for hidden_dim, dropout_rate in zip(hidden_layers, dropout_rates):
+        dense_layer = layers.Dense(
+            hidden_dim, 
+            activation='relu', 
+            kernel_initializer=HeNormal(), 
+            bias_initializer=Zeros()
+        )
+        model_layers.append(dense_layer)
+        model_layers.append(layers.Dropout(dropout_rate))
         last_dim = hidden_dim
 
-    layers.append(nn.Linear(last_dim, 1))
-    layers.append(nn.Sigmoid())
-    
-    model = nn.Sequential(*layers)
+    final_layer = layers.Dense(
+        1, 
+        activation='sigmoid', 
+        kernel_initializer=GlorotUniform(), 
+        bias_initializer=Zeros()
+    )
+    model_layers.append(final_layer)
+
+    model = Sequential(model_layers)
     return model
 
