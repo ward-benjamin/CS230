@@ -15,11 +15,20 @@ In this file, we gather the functions to preprocess the data and save it as a CS
 selected_features = ['DIABETE3','_RFHYPE5','TOLDHI2','_CHOLCHK','_BMI5','SMOKE100','CVDSTRK3','_MICHD','_TOTINDA','_FRTLT1','_VEGLT1','_RFDRHV5','HLTHPLN1', 'MEDCOST','GENHLTH', 'MENTHLTH', 'PHYSHLTH', 'DIFFWALK','SEX','_AGEG5YR','EDUCA','INCOME2']
 cols_new_name = {"DIABETE3":"Diabetes_status","_BMI5":"BMI","SMOKE100":"Has_smoked_100_cigs","CVDSTRK3":"Had_stroke","_RFHYPE5":"Blood_pressure",
 "_CHOLCHK":"CHOLCHK","TOLDHI2":"High_chol","_MICHD":"Had_heart_att","_TOTINDA":"Exercise_last_mo","_FRTLT1":"Fruit_daily",
-"_VEGTL1":"Veg_daily","_RFDRHV5":"Heavy_drinker","_HLTHPLN1":"Healthcare_coverage","MEDCOST":"MEDCOST","GENHLTH":"GENHLTH","MENTHLTH":"MENTHLTH",
+"_VEGLT1":"Veg_daily","_RFDRHV5":"Heavy_drinker","HLTHPLN1":"Healthcare_coverage","MEDCOST":"MEDCOST","GENHLTH":"GENHLTH","MENTHLTH":"MENTHLTH",
 "PHYSHLTH":"PHYSHLTH","DIFFWALK":"Difficulty_walking","SEX":"Sex","_AGEG5YR":"Age_bracket","EDUCA":"Education_level","INCOME2":"Income_bracket","PERSDOC2":"Has_pers_doc",
 "CHECKUP1":"Time_since_last_checkup","ASTHMA3":"Asthma","CHCSCNCR":"Has_had_skin_cancer","CHCOCNCR":"Had_other_cancers","VETERAN3":"Veteran","ALCDAY5":"Days_alcohol_last_mo",
 "FRUITJU1":"Juice_consumption","FRUIT1":"Fruit_consumption","FVBEANS":"Beans_consumption","FVGREEN":"Leafy_greens","_RFBMI5":"Obese","_SMOKER3":"Smoker_category",
 "DRNKANY5":"Any_drink_last_mo"}
+
+
+
+
+
+
+
+
+
 
 diabetes_map = {2: 0, 3:0, 4: 1, 1:2, 7.0: -1, 9.0: -1}
 blood_pressure_map = {1:0,2:1,9:-1}
@@ -31,7 +40,7 @@ michd_map = {2:0, 7:-1, 9:-1}
 exercise_last_mo_map = {2:0, 9:-1}
 fruit_map = {2:0, 9:-1}
 veg_map = {2:0, 9:-1}
-heavy_drinker_map = {1:0, 2:1}
+heavy_drinker_map = {1:0, 2:1, 9:-1}
 health_care_map = {2:0, 7:-1, 9:-1}
 medcost_map = {2:0, 7:-1, 9:-1}
 genhlth_map = {7:-1, 9:-1}
@@ -42,7 +51,7 @@ sex_map = {2:0}
 age_bracket_map = {14:-1}
 education_level_map = {9:-1}
 income_map = {77:-1, 99:-1}
-healthcare_map = {} #ToDo
+healthcare_map = {2:0, 7:-1, 9:-1} 
 
 diabetes_binary_map = {1:0, 2:1}
 
@@ -129,6 +138,17 @@ def process_dataset(df): #This function can select the interesting features
 
     return df_selected
 
+def normal_features(df) : 
+    normalized_df = df.copy()
+    for column in normalized_df.select_dtypes(include=['number']).columns:
+        col_min = normalized_df[column].min()
+        col_max = normalized_df[column].max()
+        if col_max > col_min:  # Avoid division by zero for constant columns
+            normalized_df[column] = (normalized_df[column] - col_min) / (col_max - col_min)
+        else:
+            normalized_df[column] = 0  # Assign 0 for constant columns
+    return normalized_df
+
 
 def process_NaNs(df):
     threshold_nans_cols = 0.2
@@ -174,6 +194,7 @@ def undersample_train_test_NM(df): #This function process the imbalanced data in
 def process_raw_data(year,sampling_method = 'NearMiss'): #This function save the processed dataset in a new csv
     df = pd.read_csv("local/data/raw/df_"+year+".csv")
     df = process_dataset(df)
+    df = normal_features(df)
     if sampling_method == 'NearMiss' :
         train_features,train_target,test_features,test_target,val_features,val_target = undersample_train_test_NM(df)
     elif sampling_method == 'Smote' :
