@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 import itertools
+import torch
+import torch.nn as nn
 
 """
 In this file, we gather the functions necessary to fit the models used.
@@ -117,3 +119,23 @@ def train_logistic(X_train,Y_train,X_test,Y_test,hyperparameters):
     model.fit(X_train_transform, Y_train)
 
     return model,X_train_transform,X_test_transform
+
+
+def train_kan(X_train,Y_train,X_test,Y_test,model,hyperparameters):
+    dataset_train = {
+        'train_input' : torch.tensor(X_train.values, dtype=torch.float64),
+        'train_label' : torch.tensor(Y_train.values, dtype=torch.float64),
+        'test_input' : torch.tensor(X_test.values, dtype=torch.float64),
+        'test_label' : torch.tensor(Y_test.values, dtype=torch.float64)
+    }
+    model.speed()
+    model.save_act = True
+    steps = hyperparameters.get('steps',20)
+    l1_rate = hyperparameters.get('l1_rate',0.1)
+    lentropy_rate = hyperparameters.get('lentropy_rate',1.0)
+    optim = hyperparameters.get('optimizer', 'LBFGS')
+    loss = hyperparameters.get('loss_function', nn.BCEWithLogitsLoss())
+
+
+    result =  model.fit(dataset_train, opt=optim, steps = steps, lamb=0.001, lamb_entropy=lentropy_rate,lamb_l1 = l1_rate,loss_fn = loss)
+    return result

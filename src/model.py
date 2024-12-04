@@ -1,4 +1,7 @@
 import tensorflow as tf
+import itertools
+from kan.MultKAN import KAN
+import torch
 
 """
 This file contains the methods to build the different models used in the project.
@@ -41,4 +44,19 @@ def create_sequential_model(input_dim, hidden_layers=[], dropout_rates=0.3, l1_r
     model = tf.keras.Sequential(model_layers)
     return model
 
+
+def create_list_model(input_dim,hidden_layers_list,dropout_rates_list,l1_rate_list,l2_rate_list):
+    final_list = []
+    for hidden_layers, dropout_rates,l1_rate,l2_rate in itertools.product(hidden_layers_list,dropout_rates_list,l1_rate_list,l2_rate_list):
+        model = create_sequential_model(input_dim,hidden_layers = hidden_layers,dropout_rates=dropout_rates,l1_rate=l1_rate,l2_rate=l2_rate)
+        final_list.append(model)
+    return final_list
+
+
+
+def create_kan_model(input_dim, hidden_layers,grid = 5, degree = 3):
+    torch.set_default_dtype(torch.float64)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_0 = KAN(width = [input_dim]+hidden_layers+[1],grid = grid, k = degree, device=device)
+    return model_0
 
