@@ -12,3 +12,5 @@ class WeightedBCELoss(tf.keras.losses.Loss):
         loss = - (self.w1 * y_true * tf.math.log(y_pred) + 
                   self.w2 * (1 - y_true) * tf.math.log(1 - y_pred))
         return tf.reduce_mean(loss)
+    
+
